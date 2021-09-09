@@ -164,7 +164,7 @@ read_trace(struct reader *reader)
     }
 
     if (key_len < 8) {
-        key_len = 8; 
+        key_len = 8;
     }
 
     uint32_t op = (op_ttl >> 24u) & (0x00000100 - 1);

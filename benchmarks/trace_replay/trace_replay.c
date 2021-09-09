@@ -188,6 +188,8 @@ trace_replay_run(void)
 
     int32_t last_print = 0;
     while (read_trace(reader) == 0) {
+        printf("%ld\t\t\t%d\n", reader->curr_ts, e->op);
+
         proc_sec = reader->curr_ts * time_speedup;
         if (time_proc_sec() % 3600 == 0 && time_proc_sec() != last_print) {
             last_print = time_proc_sec();
