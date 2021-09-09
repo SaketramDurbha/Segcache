@@ -221,7 +221,7 @@ trace_replay_run(void)
 
         n_req += 1;
         if (n_req % 10000 == 0) {
-            printf("%ld\t\t\t%ld\t\t\t%Lf\n", n_req, n_get_req_since, n_get_req_since / 10000);
+            printf("%ld\t\t\t%ld\t\t\t%Lf\n", n_req, n_get_req_since, n_get_req_since / 10000.0);
             n_get_req_since = 0;
         }
     }
