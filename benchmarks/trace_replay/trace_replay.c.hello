@@ -29,10 +29,9 @@ static int                  n_thread;
 static struct reader        *readers[N_MAX_THREAD];
 static int                  time_speedup;
 volatile int64_t            op_cnt[op_invalid];
-volatile static int32_t     last_curr_ts = -1;
 volatile static uint64_t    n_req = 0;
 volatile static uint64_t    n_get_req = 0;
-volatile static uint64_t    n_req_since = 0;
+volatile static uint64_t    n_get_req_since = 0;
 volatile static uint64_t    n_miss = 0;
 
 static delta_time_i         default_ttls[100];
@@ -207,6 +206,7 @@ trace_replay_run(void)
 
         if (e->op == op_get) {
             n_get_req += 1;
+            n_get_req_since += 1;
 
             if (status == CC_EEMPTY) {
                 n_miss += 1;
@@ -220,13 +220,9 @@ trace_replay_run(void)
         }
 
         n_req += 1;
-        n_req_since += 1;
-
-        if (reader->curr_ts != last_curr_ts) {
-            printf("%d\t\t\t%ld\n", reader->curr_ts, n_req_since);
-
-            last_curr_ts = reader->curr_ts;
-            n_req_since = 0;
+        if (n_req % 10000 == 0) {
+            printf("%ld\t\t\t%ld\t\t\t%Lf\n", n_req, n_get_req_since, n_get_req_since / 10000.0);
+            n_get_req_since = 0;
         }
     }
 
