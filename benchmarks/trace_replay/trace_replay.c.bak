@@ -31,7 +31,6 @@ static int                  time_speedup;
 volatile int64_t            op_cnt[op_invalid];
 volatile static uint64_t    n_req = 0;
 volatile static uint64_t    n_get_req = 0;
-volatile static uint64_t    n_get_req_since = 0;
 volatile static uint64_t    n_miss = 0;
 
 static delta_time_i         default_ttls[100];
@@ -189,7 +188,7 @@ trace_replay_run(void)
 
     int32_t last_print = 0;
     while (read_trace(reader) == 0) {
-        // printf("%ld\t\t\t%d\n", reader->curr_ts, e->op);
+        printf("%ld\t\t\t%d\n", reader->curr_ts, e->op);
 
         proc_sec = reader->curr_ts * time_speedup;
         if (time_proc_sec() % 3600 == 0 && time_proc_sec() != last_print) {
@@ -201,29 +200,24 @@ trace_replay_run(void)
         } else if (e->op == op_add || e->op == op_replace || e->op == op_cas) {
             ;
         }
-        // status = run_op(e);
+        status = run_op(e);
         op_cnt[e->op] += 1;
 
         if (e->op == op_get) {
             n_get_req += 1;
-            n_get_req_since += 1;
 
             if (status == CC_EEMPTY) {
                 n_miss += 1;
                 if (e->val_len != 0) {
                     op_cnt[op_set] += 1;
                     e->op = op_set;
-                    // run_op(e);
+                    run_op(e);
                     n_req += 1;
                 }
             }
         }
 
         n_req += 1;
-        if (n_req % 10000 == 0) {
-            printf("%ld\t\t\t%d\n", n_req, n_get_req_since);
-            n_get_req_since = 0;
-        }
     }
 
     duration_stop(&d);
